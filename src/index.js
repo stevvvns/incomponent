@@ -87,7 +87,7 @@ export function comp(setup, observeAttrs = []) {
         ...observeAttrs.reduce((acc, attr) => ({ ...acc, [attr]: null }), {}),
       };
       for (const [prop, val] of Object.entries(this.props)) {
-        this._setProp(prop, val);
+        this._setProp(prop, typeof val === 'function' ? val.bind(this) : val);
         Object.defineProperty(this, prop, {
           get() {
             const rv = this.props[prop];
@@ -138,7 +138,7 @@ export function comp(setup, observeAttrs = []) {
 
     emit(evt, detail = {}) {
       this.dispatchEvent(
-        new Event(evt, { bubbles: true, composed: true, detail }),
+        new CustomEvent(evt, { bubbles: true, composed: true, detail }),
       );
     }
   };

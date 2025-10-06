@@ -5,7 +5,7 @@
   <script type="module">
 import {
   comp, html, renderRoot, ref, computed, cx, sx
-} from 'https://cdn.jsdelivr.net/npm/@stevvvns/incomponent/+esm';
+} from './dist/main.mjs';
 
 // react useContext-ish, vue pinia-ish stores. use an IIF to return your state
 // and mutators, then import this anywhere where you want it to be "provided"
@@ -28,9 +28,14 @@ export const sharedState = (() => {
 // names! (esbuild --keep-names, webpack terserOptions keep_fnames=true)
 comp(function Example() {
   const { points, doubled } = sharedState;
+  const clicks = ref(0);
+  // custom event receiver
+  function wasClicked(evt) {
+    clicks.value += evt.detail.times;
+  }
   // returns become instance variables in the `template` callback, in addition to
   // all the other stuff from HTMLElement
-  return { points, doubled };
+  return { points, doubled, clicks, wasClicked };
 })
   // refs are unwrapped for templates, so you can say el.points instead of
   // el.points.value
@@ -43,10 +48,10 @@ comp(function Example() {
           backgroundColor: el.points % 5 === 0 ? 'yellow' : 'transparent'
         })
       }>
-        ${el.points.toLocaleString()}
+        [${el.clicks}] ${el.points.toLocaleString()}
       </span>
       <inc-doubled .amount=${el.doubled}></inc-doubled>
-      <slot></slot>
+      <slot @clicked=${el.wasClicked}></slot>
     </p>`
   )
   .style('span { color: purple; margin-right: 6px } .red { color: red }');
@@ -65,6 +70,8 @@ comp(
         // to use spreads and the like to reconstruct the whole object. see the
         // docs for immer for better examples
         amount.mut(val => val * 2);
+        // contrived example of a custom event. note `this` is bound to the element
+        this.emit('clicked', { times: 1 });
       },
       amount
     };
