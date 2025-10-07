@@ -16,7 +16,7 @@ Cheat sheet:
 
 | Export | Purported function |
 |--|--|
-| `ref(value)` | Create a reference with a `.value` property initialized with the argument. When references are changed they re-invoke call `computed` values based on them and re-render templates that reference them. |
+| `ref(value)` | Create a reference with a `.value` property initialized with the argument. When references are changed they re-invoke all `computed` values based on them and re-render templates that reference them. |
 | `computed(callback,deps = [])` | Generate a value (or just do something) when dependencies change. `deps` is combined with the list of every reference `.value` that is evaluated when `callback` is invoked for the first time. So, if you follow a "rule of hooks" style where you unconditionally access the `.value` of every reference your computed function is concerned with, you do not have to specify this parameter. |
 | `html` | [`lit-html`](https://lit.dev/docs/v1/lit-html/introduction/)
 | ``comp(function MyComp() {}, attrs=[]).template(el => html`<p>hello from ${el.tagName}!</p>`) `` | Creates a web component for the provided setup function and template, this one results in `<p>hello from INC-MY-COMP!</p>`. Please see [the example](./example.html) for more info on this than fits in this cell. |

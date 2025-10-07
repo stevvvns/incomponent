@@ -6,7 +6,7 @@
   "main": "dist/main.mjs",
   "license": "MIT",
   "scripts": {
-    "build": "npx esbuild --bundle --format=esm --platform=browser --outfile=dist/main.mjs --minify --keep-names src/index.js",
+    "build": "npx esbuild --bundle --format=esm --platform=browser --outfile=dist/main.mjs --minify src/index.js",
     "pub": "npm run build && npm publish --access=public",
     "lint": "npx eslint src --fix; npx prettier src --write"
   },
