@@ -1,7 +1,7 @@
-import { produce } from "immer";
-import { html, svg, render } from "lit-html";
-import { classMap } from "lit-html/directives/class-map.js";
-import { styleMap } from "lit-html/directives/style-map.js";
+import { produce } from 'immer';
+import { html, svg, render } from 'lit-html';
+import { classMap } from 'lit-html/directives/class-map.js';
+import { styleMap } from 'lit-html/directives/style-map.js';
 
 const cx = classMap;
 const sx = styleMap;
@@ -69,9 +69,10 @@ export function computed(cb, deps = [], dbg = false) {
   return Ref.forComputed(cb, deps, dbg);
 }
 
-const prefix = "inc";
+const prefix = 'inc';
 export function comp(setup, observeAttrs = []) {
-  const name = setup.name.replace(/([A-Z])/g, "-$1").toLowerCase();
+  const camelName = typeof setup === 'string' ? setup : setup.name;
+  const name = camelName.replace(/([A-Z])/g, '-$1').toLowerCase();
   let template = () => html``;
   const styleSheet = new CSSStyleSheet();
 
@@ -81,9 +82,9 @@ export function comp(setup, observeAttrs = []) {
 
     constructor() {
       super();
-      this.attachShadow({ mode: "open" });
+      this.attachShadow({ mode: 'open' });
       this.props = {
-        ...(setup() ?? {}),
+        ...((typeof setup === 'string' ? () => {} : setup)() ?? {}),
         ...observeAttrs.reduce((acc, attr) => ({ ...acc, [attr]: null }), {}),
       };
       for (const [prop, val] of Object.entries(this.props)) {
@@ -157,6 +158,6 @@ export function comp(setup, observeAttrs = []) {
   return rv;
 }
 
-export function renderRoot(html, el = "body") {
-  render(html, typeof el === "string" ? document.querySelector(el) : el);
+export function renderRoot(html, el = 'body') {
+  render(html, typeof el === 'string' ? document.querySelector(el) : el);
 }

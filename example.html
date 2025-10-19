@@ -90,7 +90,11 @@ comp(function Doubled() {
   // setting a default for a prop that is expected to be provided by parent comp
   return { amount: 0 };
 })
-  .template(el => html`<span>(${el.amount.toLocaleString()})</span>`);
+  .template(el => html`<span>(${el.amount.toLocaleString()})<inc-exclam></inc-exclam></span>`);
+
+
+// <inc-exclam>, no setup function required so just pass the name
+comp('Exclam').template(_ => html`!`);
 
 document.addEventListener('DOMContentLoaded', () => {
   renderRoot(

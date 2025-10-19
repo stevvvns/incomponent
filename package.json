@@ -1,14 +1,19 @@
 {
   "name": "@stevvvns/incomponent",
-  "version": "0.0.11",
+  "version": "0.0.13",
   "type": "module",
   "module": "src/index.js",
   "main": "dist/main.mjs",
+  "files": [
+    "dist/main.mjs",
+    "LICENSE"
+  ],
   "license": "MIT",
   "scripts": {
+    "example": "npx serve",
     "build": "npx esbuild --bundle --format=esm --platform=browser --outfile=dist/main.mjs --minify src/index.js",
     "pub": "npm run build && npm publish --access=public",
-    "lint": "npx eslint src --fix; npx prettier src --write"
+    "lint": "npx eslint src --fix; npx prettier src --single-quote --write"
   },
   "dependencies": {
     "immer": "^10.1.3",

@@ -1,7 +1,6 @@
 # incomponent
 
 ## What?
-
 This is a minimal component library that rips off most of Vue's composition API, and uses `lit-html` for rendering, `immer` for immutable state.
 
 ## Why?
