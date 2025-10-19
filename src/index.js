@@ -147,7 +147,7 @@ export function comp(setup, observeAttrs = []) {
 
   const rv = {
     template(tpl) {
-      template = tpl;
+      template = typeof tpl === 'function' ? tpl : () => tpl;
       return rv;
     },
     style(style) {

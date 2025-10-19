@@ -93,8 +93,9 @@ comp(function Doubled() {
   .template(el => html`<span>(${el.amount.toLocaleString()})<inc-exclam></inc-exclam></span>`);
 
 
-// <inc-exclam>, no setup function required so just pass the name
-comp('Exclam').template(_ => html`!`);
+// <inc-exclam>, no setup function required so just pass the name, non-reactive
+// template doesn't need to be a function
+comp('Exclam').template(html`!`);
 
 document.addEventListener('DOMContentLoaded', () => {
   renderRoot(
