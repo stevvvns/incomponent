@@ -83,7 +83,10 @@ comp(
 )
   .template(
     el => html`<button @click=${el.inc}>${el.label}</button>`
-  );
+  )
+  // if you need to do something with the DOM, you can provide a callback for just
+  // after the first render
+  .init(el => el.shadowRoot.querySelector('button').focus());
 
 // <inc-doubled>
 comp(function Doubled() {

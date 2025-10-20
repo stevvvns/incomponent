@@ -75,10 +75,12 @@ export function comp(setup, observeAttrs = []) {
   const name = camelName.replace(/([A-Z])/g, '-$1').toLowerCase();
   let template = () => html``;
   const styleSheet = new CSSStyleSheet();
+  let initializer = () => {};
 
   const klass = class extends HTMLElement {
     static observedAttributes = observeAttrs;
     willRender = null;
+    isInitialized = false;
 
     constructor() {
       super();
@@ -133,6 +135,10 @@ export function comp(setup, observeAttrs = []) {
         this.rendering = true;
         render(template(this), this.shadowRoot);
         this.rendering = false;
+        if (!this.isInitialized) {
+          initializer(this);
+          this.isInitialized = true;
+        }
         this.willRender = null;
       });
     }
@@ -152,6 +158,10 @@ export function comp(setup, observeAttrs = []) {
     },
     style(style) {
       styleSheet.replaceSync(style);
+      return rv;
+    },
+    init(cb) {
+      initializer = cb;
       return rv;
     },
   };
