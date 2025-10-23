@@ -21,6 +21,3 @@ Cheat sheet:
 | ``comp(function MyComp() {}, attrs=[]).template(el => html`<p>hello from ${el.tagName}!</p>`) `` | Creates a web component for the provided setup function and template, this one results in `<p>hello from INC-MY-COMP!</p>`. Please see [the example](./example.html) for more info on this than fits in this cell. |
 | `cx`, `sx` | These are aliases for `lit-html`'s `classMap` and `styleMap` directives, respectively. You can use [more directives](https://lit.dev/docs/v1/api/lit-html/directives/) by adding `lit-html` as a direct dependency of your project. |
 | ``renderRoot(html`<inc-my-app></inc-my-app>`, target='body')`` | Stamp the outermost template of your project. Target can be a CSS selector, an `HTMLElement`, or omitted to take over `<body>`. |
-
-
-

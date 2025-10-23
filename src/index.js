@@ -76,9 +76,12 @@ export function comp(setup, observeAttrs = []) {
   let template = () => html``;
   const styleSheet = new CSSStyleSheet();
   let initializer = () => {};
+  const dashedAttrs = observeAttrs.map((name) =>
+    name.replace(/([A-Z])/g, (ma) => '-' + ma[0].toLowerCase()),
+  );
 
   const klass = class extends HTMLElement {
-    static observedAttributes = observeAttrs;
+    static observedAttributes = dashedAttrs;
     willRender = null;
     isInitialized = false;
 
@@ -86,7 +89,7 @@ export function comp(setup, observeAttrs = []) {
       super();
       this.attachShadow({ mode: 'open' });
       this.props = {
-        ...observeAttrs.reduce((acc, attr) => ({ ...acc, [attr]: null }), {}),
+        ...dashedAttrs.reduce((acc, attr) => ({ ...acc, [attr]: null }), {}),
         ...((typeof setup === 'string' ? () => {} : setup)() ?? {}),
       };
       for (const [prop, val] of Object.entries(this.props)) {
@@ -122,7 +125,16 @@ export function comp(setup, observeAttrs = []) {
     }
 
     attributeChangedCallback(prop, _oldVal, val) {
-      this.props[prop] = val;
+      for (const name of [
+        prop,
+        prop.replace(/-(.)/g, (ma) => ma[1].toUpperCase()),
+      ]) {
+        if (this.props[name] instanceof Ref) {
+          this.props[name].value = val;
+        } else {
+          this.props[name] = val;
+        }
+      }
       this.render();
     }
 

@@ -78,7 +78,14 @@ comp(
   },
   // you can provide a list of observed attributes for plain HTML interop, like if
   // you are exporting a component library. if you're just making your own app you
-  // can pass data as props using lit-htmls .prop=${val} and not bother with this
+  // can pass data as props using lit-htmls .prop=${val} and not bother with this.
+  //
+  // you should pass camelCased names here, and acces the attributes with
+  // el.camelCased, however when setting the attribute externally in html
+  // you must used a dashed equivalent. eg:
+  // comp('SomeEl', ['someAttr']).template(el => html`<p>${el.someAttrs}</p>`)
+  // is used as
+  // <inc-some-el some-attr="foo">
   ['label']
 )
   .template(
