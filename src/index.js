@@ -86,14 +86,15 @@ export function comp(setup, observeAttrs = []) {
       super();
       this.attachShadow({ mode: 'open' });
       this.props = {
-        ...((typeof setup === 'string' ? () => {} : setup)() ?? {}),
         ...observeAttrs.reduce((acc, attr) => ({ ...acc, [attr]: null }), {}),
+        ...((typeof setup === 'string' ? () => {} : setup)() ?? {}),
       };
       for (const [prop, val] of Object.entries(this.props)) {
         this._setProp(prop, typeof val === 'function' ? val.bind(this) : val);
         Object.defineProperty(this, prop, {
           get() {
             const rv = this.props[prop];
+            console.log('get', prop, rv, this.props);
             if (this.rendering && rv instanceof Ref) {
               return rv.value;
             }
