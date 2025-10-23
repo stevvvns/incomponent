@@ -94,7 +94,6 @@ export function comp(setup, observeAttrs = []) {
         Object.defineProperty(this, prop, {
           get() {
             const rv = this.props[prop];
-            console.log('get', prop, rv, this.props);
             if (this.rendering && rv instanceof Ref) {
               return rv.value;
             }
