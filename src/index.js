@@ -111,8 +111,7 @@ export function comp(setup, observeAttrs = []) {
     _setProp(prop, val) {
       this.props[prop] = val;
       if (val instanceof Ref) {
-        val.onChange((newVal) => {
-          this.props[prop] = newVal;
+        val.onChange(() => {
           this.render();
         });
       }
