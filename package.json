@@ -1,6 +1,6 @@
 {
   "name": "@stevvvns/incomponent",
-  "version": "0.0.18",
+  "version": "0.0.19",
   "type": "module",
   "module": "src/index.js",
   "main": "dist/main.js",

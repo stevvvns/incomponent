@@ -2,10 +2,11 @@ import { produce } from 'immer';
 import { html, svg, render } from 'lit-html';
 import { classMap } from 'lit-html/directives/class-map.js';
 import { styleMap } from 'lit-html/directives/style-map.js';
+import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 
 const cx = classMap;
 const sx = styleMap;
-export { html, svg, cx, sx };
+export { html, svg, cx, sx, unsafeHTML };
 
 class Ref {
   constructor(value) {
