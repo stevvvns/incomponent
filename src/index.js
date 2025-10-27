@@ -3,10 +3,11 @@ import { html, svg, render } from 'lit-html';
 import { classMap } from 'lit-html/directives/class-map.js';
 import { styleMap } from 'lit-html/directives/style-map.js';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
+import { unsafeSVG } from 'lit-html/directives/unsafe-svg.js';
 
 const cx = classMap;
 const sx = styleMap;
-export { html, svg, cx, sx, unsafeHTML };
+export { html, svg, cx, sx, unsafeHTML, unsafeSVG };
 
 class Ref {
   constructor(value) {
@@ -90,8 +91,11 @@ export function comp(setup, observeAttrs = []) {
       super();
       this.attachShadow({ mode: 'open' });
       this.props = {
-        ...dashedAttrs.reduce((acc, attr) => ({ ...acc, [attr]: null }), {}),
-        ...((typeof setup === 'string' ? () => {} : setup)() ?? {}),
+        ...dashedAttrs.reduce(
+          (acc, attr) => ({ ...acc, [attr]: this.getAttribute(attr) }),
+          {},
+        ),
+        ...((typeof setup === 'string' ? () => {} : setup)(this) ?? {}),
       };
       for (const [prop, val] of Object.entries(this.props)) {
         this._setProp(prop, typeof val === 'function' ? val.bind(this) : val);
@@ -161,7 +165,11 @@ export function comp(setup, observeAttrs = []) {
       );
     }
   };
-  customElements.define(prefix + name, klass);
+  try {
+    customElements.define(prefix + name, klass);
+  } catch {
+    // already defined? don't care
+  }
 
   const rv = {
     template(tpl) {
