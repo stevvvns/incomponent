@@ -4,10 +4,11 @@ import { classMap } from 'lit-html/directives/class-map.js';
 import { styleMap } from 'lit-html/directives/style-map.js';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 import { unsafeSVG } from 'lit-html/directives/unsafe-svg.js';
+import { repeat } from 'lit-html/directives/repeat.js';
 
 const cx = classMap;
 const sx = styleMap;
-export { html, svg, cx, sx, unsafeHTML, unsafeSVG };
+export { html, svg, cx, sx, unsafeHTML, unsafeSVG, repeat };
 
 class Ref {
   constructor(value) {
@@ -117,7 +118,11 @@ export function comp(setup, observeAttrs = []) {
     }
 
     _setProp(prop, val) {
-      this.props[prop] = val;
+      if (this.props[prop] instanceof Ref && !(val instanceof Ref)) {
+        this.props[prop].value = val;
+      } else {
+        this.props[prop] = val;
+      }
       if (val instanceof Ref) {
         val.onChange(() => {
           this.render();
