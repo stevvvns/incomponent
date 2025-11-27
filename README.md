@@ -102,8 +102,8 @@ This does about what you'd expect, gives you a button you can click to see two n
 	 * `cx`, `sx` aliases for `classMap` and `styleMap` respectively, ergonomic helpers for setting `class` and `style` attributes using objects rather than interpolating strings.
 	 * `unsafeHTML`, `unsafeSVG` for when/if you need raw access to write HTML, for example when rendering markdown like this.
 	 * `repeat(items, keyFn, subtemplate)` an important utility to render dynamic lists into `<li>` or similar.
-		 * `keyFn` returns a unique id for each item that `lit-html` can use to track the item during updates. If you render your `<li>` with a standard JS `items.map(...)` it may appear to work until the list changes and you find some properties of item A mashed up with item B because `lit-html` is making incremental updates to the DOM based on indices that have changed instead of tracking the items as distinct entities.
-	 * You can add other directives by including `lit-html` as your own direct dependency 
+		 * `keyFn` returns a unique id for each item that `lit-html` can use to track the item during updates instead of using its index in the list, which may be volatile and result in mixed up renders.
+	 * You can add other directives by including `lit-html` as your own direct dependency
 
 #### ``builder.style(css`...`)``
  * Scoped styles contained to the element's shadow DOM
