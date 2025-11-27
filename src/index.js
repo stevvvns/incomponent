@@ -15,7 +15,7 @@ class Ref {
     this._value = value;
   }
 
-  static forComputed(cb, deps) {
+  static forDerived(cb, deps) {
     const depSet = new Set(deps);
     Ref.spy = (r) => depSet.add(r);
     const value = cb();
@@ -68,8 +68,8 @@ export function ref(value) {
   return new Ref(value);
 }
 
-export function computed(cb, deps = [], dbg = false) {
-  return Ref.forComputed(cb, deps, dbg);
+export function derive(cb, deps = [], dbg = false) {
+  return Ref.forDerived(cb, deps, dbg);
 }
 
 const prefix = 'inc';
@@ -82,6 +82,7 @@ export function comp(setup, observeAttrs = []) {
   const dashedAttrs = observeAttrs.map((name) =>
     name.replace(/([A-Z])/g, (ma) => '-' + ma[0].toLowerCase()),
   );
+  let cleanup = () => {};
 
   const klass = class extends HTMLElement {
     static observedAttributes = dashedAttrs;
@@ -148,6 +149,10 @@ export function comp(setup, observeAttrs = []) {
       this.render();
     }
 
+    disconnectedCallback() {
+      cleanup();
+    }
+
     render() {
       if (this.willRender !== null) {
         cancelAnimationFrame(this.willRender);
@@ -157,7 +162,10 @@ export function comp(setup, observeAttrs = []) {
         render(template(this), this.shadowRoot);
         this.rendering = false;
         if (!this.isInitialized) {
-          initializer(this);
+          const rv = initializer(this);
+          if (typeof rv === 'function') {
+            cleanup = rv;
+          }
           this.isInitialized = true;
         }
         this.willRender = null;
@@ -191,8 +199,4 @@ export function comp(setup, observeAttrs = []) {
     },
   };
   return rv;
-}
-
-export function renderRoot(html, el = 'body') {
-  render(html, typeof el === 'string' ? document.querySelector(el) : el);
 }

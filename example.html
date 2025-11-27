@@ -4,19 +4,26 @@
   <title>Example</title>
   <script type="module">
 import {
-  comp, html, renderRoot, ref, computed, cx, sx
-} from './dist/main.mjs';
+  comp, html, ref, derive, cx, sx
+} from './dist/main.js';
 
-// react useContext-ish, vue pinia-ish stores. use an IIF to return your state
-// and mutators, then import this anywhere where you want it to be "provided"
-export const sharedState = (() => {
+// simple store/context, just import this wherever needed
+export const pointStore = (() => {
   // reactive state (react useState)
   const points = ref(0);
-  // react useEffect/useMemo/useCallback
-  // you could specify [points] as the second argument here to be explicit about
-  // dependencies, but if you evaluate .value for every dependency on the initial
-  // call of the function (rule of hooks style) you can omit it
-  const doubled = computed(() => points.value * 2);
+
+  // react useMemo
+  const doubled = derive(() => points.value * 2);
+  // you can derive an effect instead of (or in addition to) a value if you want
+  derive(() => {
+    if (points.value % 100 === 0) {
+      console.log(points.value);
+    }
+  });
+  // you can provide a second param to derive() with an [array, of, additional, refs]
+  // if it is awkward to make sure all the refs you depend on are evaluated every
+  // time the function is called.
+
   // mutators are just functions
   function add(amount) {
     points.value += amount;
@@ -25,11 +32,12 @@ export const sharedState = (() => {
 })();
 
 // <inc-example> web component. make sure your minified build does not mangle function
-// names! (esbuild --keep-names, webpack terserOptions keep_fnames=true)
+// names (esbuild --keep-names, webpack terserOptions keep_fnames=true)
 comp(function Example() {
-  const { points, doubled } = sharedState;
+  const { points, doubled } = pointStore;
   const clicks = ref(0);
-  // custom event receiver
+  // custom event receiver. react useCallback-like caching is never needed since these
+  // setup functions are only ever called once per instance of the component
   function wasClicked(evt) {
     clicks.value += evt.detail.times;
   }
@@ -58,20 +66,23 @@ comp(function Example() {
 
 // <inc-button>
 comp(
-  function Button() {
-    const { add } = sharedState;
+  function Button(el) {
+    const { add } = pointStore;
     const amount = ref(1);
     return {
       inc() {
         add(amount.value);
-        // it would be cleaner to directly assign to amount.value here, but you
-        // may use `mut` to provide a callback that changes the value. this is
-        // useful to pick up changes to arrays or deep object keys without having
-        // to use spreads and the like to reconstruct the whole object. see the
-        // docs for immer for better examples
+        // amount.value *= 2 makes more sense here, but for demonstration sake, you
+        // can provide a callback that mutates the value.
+        //
+        // oridinarily you want to do this when your value type is an object or array
+        // that you want to mutate in ways that don't change the object's identity
+        // (array.push(...) or similar), as the mutation will create a new immutable
+        // object incorporating any changes you make. see the immer docs for more
+        // details.
         amount.mut(val => val * 2);
-        // contrived example of a custom event. note `this` is bound to the element
-        this.emit('clicked', { times: 1 });
+        // contrived example of a custom event
+        el.emit('clicked', { times: 1 });
       },
       amount
     };
@@ -100,21 +111,24 @@ comp(function Doubled() {
   // setting a default for a prop that is expected to be provided by parent comp
   return { amount: 0 };
 })
+  .init(el => {
+    // another inane example, but you can use init() to do things after the DOM
+    // for the component is initially rendered
+    const span = el.shadowRoot.querySelector('span');
+    span.addEventListener('mouseover', console.info);
+    // optionally return a function to do cleanup when the component is unmounted
+    return () => span.removeEventListener('mouseover', console.info);
+  })
   .template(el => html`<span>(${el.amount.toLocaleString()})<inc-exclam></inc-exclam></span>`);
 
 
 // <inc-exclam>, no setup function required so just pass the name, non-reactive
 // template doesn't need to be a function
 comp('Exclam').template(html`!`);
-
-document.addEventListener('DOMContentLoaded', () => {
-  renderRoot(
-    html`<inc-example><inc-button label="Increment"></inc-button></inc-example>`
-  );
-});
   </script>
 </head>
 <body>
   <h1>Example app</h1>
+  <inc-example><inc-button label="Increment"></inc-button></inc-example>
 </body>
 </html>
