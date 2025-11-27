@@ -78,14 +78,16 @@ This does about what you'd expect, gives you a button you can click to see two n
  * The callback is invoked once immediately, and then again any time the `ref`s it depends on change.
 	 * Any `ref`s that you read the `.value` of the first time the callback is invoked are tracked as dependencies automatically
 	 * If there are additional `ref`s you evaluate only conditionally, you can include them in the optional second argument to track them as well.
- 
+
 #### `comp(function SetupFunction() {})`
  * This is how you make a web component. It gets named by changing the function name to dash case, so don't use an arrow. This one becomes `<inc-setup-function>`
  * The function provided here is called once during the instantiation of each instance of your component.
-	 * Your general goal here is to set up (hence "setup function") the mechanics of your component:
+	 * Your general goal here is to set up (hence "setup function") and return the mechanics of your component:
 		 * `ref`s for state and props
-		 * `derives` for calculations that would be awkward in the template
-		 * regular old `function`s for state mutations
+            * Triggers re-renders when the template references them or any derivation of them.
+		 * `derive`s for calculations that would be awkward in the template
+		 * Regular old `function`s for state mutations
+            * Functions are bound so that `this` is the component instance
  * The return value of `comp`, which we'll call `builder`, is a collection of functions that can be called in any order (or not at all) to set the behavior of your component based on the setup:
 
 #### ``builder.template(el => html`..`)``
@@ -111,3 +113,10 @@ This does about what you'd expect, gives you a button you can click to see two n
 #### `builder.init(callback)`
  * This is called just after the template is first rendered into the DOM, so you can use it do things like DOM measurements, attaching observers, etc.
  * If you return a function from the callback, it will be registered as a cleanup function and called when the component is going to leave the DOM (e.g., to disconnect and dispose those observers)
+
+### Events
+It's worth taking a look at [the docs for writing lit-html templates](https://lit.dev/docs/v1/lit-html/writing-templates/) if you're not familiar with it.
+
+Subscribing to events is covered by `lit-html`'s `@` sigil: ``html`<a @click=${el.doSomething}>click me</a>``
+
+To emit your own events, call `.emit(eventName, detail)` on the component instance, where `detail` is an arbitrary structure. Recall that in addition to the builder callbacks being passed the component instance as an argument, `this` is the component instance in functions returned from your setup function.
