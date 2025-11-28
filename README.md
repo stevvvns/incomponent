@@ -98,7 +98,7 @@ This does about what you'd expect, gives you a button you can click to see two n
 
 #### ``builder.template(el => html`..`)``
  * HTML or SVG representation of your component's state
- * `el` is your web component instance, which has all the stuff you would expect on a native web component, but also notably anything you return from your setup function is bound as a property.
+ * `el` is your web component instance, which has all the stuff you would expect on a native web component. Plus, anything you return from your setup function is bound as a property.
 	 * `refs` are unwrapped during evaluation of the template. For example:
 ```javascript
 	// auto-unwrapped
@@ -113,7 +113,7 @@ This does about what you'd expect, gives you a button you can click to see two n
 		 * `keyFn` returns a unique id for each item that `lit-html` can use to track the item during updates instead of using its index in the list, which may be volatile and result in mixed up renders.
 	 * You can add other directives by including `lit-html` as your own direct dependency
 
-#### ``builder.style(css`...`)``
+#### ``builder.style(`...`)``
  * Scoped styles contained to the element's shadow DOM
 
 #### `builder.init(callback)`

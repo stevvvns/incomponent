@@ -2,12 +2,19 @@
   "name": "@stevvvns/incomponent",
   "version": "0.1.1",
   "type": "module",
-  "module": "src/index.js",
+  "module": "dist/main.js",
   "main": "dist/main.js",
+  "exports": {
+    ".": {
+      "import": "./dist/main.js",
+      "default": "./dist/main.js"
+    }
+  },
   "files": [
     "dist/main.js",
     "LICENSE"
   ],
+  "sideEffects": true,
   "license": "MIT",
   "scripts": {
     "example": "npx serve",
