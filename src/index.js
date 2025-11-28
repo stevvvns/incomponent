@@ -16,15 +16,30 @@ class Ref {
   }
 
   static forDerived(cb, deps) {
+    let id, regCleanup;
+    if (Ref.registerCleanups) {
+      id = Symbol();
+      regCleanup = Ref.registerCleanups;
+    }
+    const lastClean = ref(() => {});
+    function setClean(cb) {
+      lastClean.value = cb;
+      if (regCleanup) {
+        regCleanup(id, cb);
+      }
+    }
     const depSet = new Set(deps);
     Ref.spy = (r) => depSet.add(r);
-    const value = cb();
+    const value = cb(setClean);
     Ref.spy = null;
 
-    const rv = new Ref(value);
+    const rv = ref(value);
     rv.compute = cb;
     for (const dep of depSet) {
-      dep.onChange(() => (rv.value = cb()));
+      dep.onChange(() => {
+        lastClean.value();
+        rv.value = cb(setClean);
+      });
     }
 
     return rv;
@@ -91,7 +106,11 @@ export function comp(setup, observeAttrs = []) {
 
     constructor() {
       super();
+      this.deriveCleanups = {};
       this.attachShadow({ mode: 'open' });
+      Ref.registerCleanups = (id, cb) => {
+        this.deriveCleanups[id] = cb;
+      };
       this.props = {
         ...dashedAttrs.reduce(
           (acc, attr) => ({ ...acc, [attr]: this.getAttribute(attr) }),
@@ -99,6 +118,7 @@ export function comp(setup, observeAttrs = []) {
         ),
         ...((typeof setup === 'string' ? () => {} : setup)(this) ?? {}),
       };
+      Ref.registerCleanups = null;
       for (const [prop, val] of Object.entries(this.props)) {
         this._setProp(prop, typeof val === 'function' ? val.bind(this) : val);
         Object.defineProperty(this, prop, {
@@ -150,6 +170,13 @@ export function comp(setup, observeAttrs = []) {
     }
 
     disconnectedCallback() {
+      for (const sym of Object.getOwnPropertySymbols(this.deriveCleanups)) {
+        try {
+          this.deriveCleanups[sym]();
+        } catch (ex) {
+          console.error('derive cleanup', ex);
+        }
+      }
       cleanup();
     }
 

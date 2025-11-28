@@ -72,14 +72,17 @@ This does about what you'd expect, gives you a button you can click to see two n
 		```
 	* Also prefer `mut()` when making more than one update to the same `ref`, like removing an array item and replacing it at a different index. `mut()` batches updates to the draft and avoids excessive retriggering.
 
-#### `derive(callback, deps = [])`
+#### `derive(callback(cleanup: (fn) => void), deps = [])`
  * Can derive a value by returning: `const double = derive(() => points.value * 2)`
- * Can derive an effect by not: `derive(() => console.log(points.value))`
+ * Can derive an effect by not returning: `derive(() => console.log(points.value))`
  * Can do both at the same time if you're feeling spicy
  * If you return a value, it is a `ref`, and hence can be used in further derives
  * The callback is invoked once immediately, and then again any time the `ref`s it depends on change.
 	 * Any `ref`s that you read the `.value` of the first time the callback is invoked are tracked as dependencies automatically
 	 * If there are additional `ref`s you evaluate only conditionally, you can include them in the optional second argument to track them as well.
+ * If you call the cleanup parameter with a callback, it will be invoked before the derive is recalculated and after the component is unmounted.
+ * Derives cannot be `async`, but you can resolve async functions inside and set refs from the result
+ * Derives cannot contain other derives, they should all be at the top level of your setup function.
 
 #### `comp(function SetupFunction() {})`
  * This is how you make a web component. It gets named by changing the function name to dash case, so don't use an arrow. This one becomes `<inc-setup-function>`
@@ -90,6 +93,7 @@ This does about what you'd expect, gives you a button you can click to see two n
 		 * `derive`s for calculations that would be awkward in the template
 		 * Regular old `function`s for state mutations
             * Functions are bound so that `this` is the component instance
+ * Setup functions cannot be async
  * The return value of `comp`, which we'll call `builder`, is a collection of functions that can be called in any order (or not at all) to set the behavior of your component based on the setup:
 
 #### ``builder.template(el => html`..`)``

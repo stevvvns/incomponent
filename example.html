@@ -69,6 +69,14 @@ comp(
   function Button(el) {
     const { add } = pointStore;
     const amount = ref(1);
+    derive(cleanup => {
+      // if you need to clean up, you must save any values needed to do so, because
+      // amount.value when the cleanup function is called may be different
+      const clean = amount.value;
+      cleanup(() => {
+        console.log('cleanup', clean);
+      });
+    });
     return {
       inc() {
         add(amount.value);
