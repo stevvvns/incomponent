@@ -208,7 +208,7 @@ export function comp(setup, observeAttrs = []) {
   try {
     customElements.define(prefix + name, klass);
   } catch {
-    // already defined? don't care
+    // ...
   }
 
   const rv = {
