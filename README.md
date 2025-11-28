@@ -17,6 +17,8 @@ I was writing a little game in vanilla JS, and after getting tired of ersatz ren
 ## How?
 `$ npm i @stevvvns/incomponent`
 
+Configure your build to keep function names. In esbuild this is `keepNames: true` (`--keep-names` CLI), vite `esbuild.keepNames: true`, webpack `optimization.minimizer: [new TerserPlugin({ keep_fnames: true })]`
+
 Consider a bare-bones components:
 
 ```javascript
@@ -120,3 +122,8 @@ It's worth taking a look at [the docs for writing lit-html templates](https://li
 Subscribing to events is covered by `lit-html`'s `@` sigil: ``html`<a @click=${el.doSomething}>click me</a>``
 
 To emit your own events, call `.emit(eventName, detail)` on the component instance, where `detail` is an arbitrary structure. Recall that in addition to the builder callbacks being passed the component instance as an argument, `this` is the component instance in functions returned from your setup function.
+
+### Resources
+
+ * There is a configuration of [router5](https://github.com/router5/router5) you can use for routing, [@stevvvns/inc-router](https://github.com/stevvvns/inc-router).
+ * There are a handful of generic components made with incomponent, [@stevvvns/inc-library](https://github.com/stevvvns/inc-library). Thanks to the magic of native components you don't have to know shit about this library to use these, but there are some more usage examples to be found here if you're interested.
