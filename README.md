@@ -19,7 +19,7 @@ I was writing a little game in vanilla JS, and after getting tired of ersatz ren
 
 Configure your build to keep function names. In esbuild this is `keepNames: true` (`--keep-names` CLI), vite `esbuild.keepNames: true`, webpack `optimization.minimizer: [new TerserPlugin({ keep_fnames: true })]`
 
-Consider a bare-bones components:
+Consider a bare-bones component:
 
 ```javascript
 import { comp, html, ref, derive } from '@stevvvns/incomponent';
