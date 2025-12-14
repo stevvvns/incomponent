@@ -119,8 +119,31 @@ export function comp(setup, observeAttrs = []) {
         ...((typeof setup === 'string' ? () => {} : setup)(this) ?? {}),
       };
       Ref.registerCleanups = null;
+      const attrs = this.getAttributeNames();
       for (const [prop, val] of Object.entries(this.props)) {
         this._setProp(prop, typeof val === 'function' ? val.bind(this) : val);
+        for (const attrName of [
+          prop.replace(/[A-Z]/g, (x) => `-${x}`).toLowerCase(),
+          prop.toLowerCase(),
+        ]) {
+          if (attrs.includes(attrName)) {
+            let attrVal = this.getAttribute(attrName);
+            switch (val instanceof Ref ? typeof val.value : typeof val) {
+              case 'boolean':
+                this._setProp(prop, true);
+                break;
+              case 'number':
+                this._setProp(prop, parseFloat(attrVal));
+                break;
+              default:
+                try {
+                  this._setProp(prop, JSON.parse(attrVal));
+                } catch {
+                  this._setProp(prop, attrVal);
+                }
+            }
+          }
+        }
         Object.defineProperty(this, prop, {
           get() {
             const rv = this.props[prop];
@@ -156,6 +179,7 @@ export function comp(setup, observeAttrs = []) {
     }
 
     attributeChangedCallback(prop, _oldVal, val) {
+      console.log('acc', prop, val);
       for (const name of [
         prop,
         prop.replace(/-(.)/g, (ma) => ma[1].toUpperCase()),

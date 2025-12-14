@@ -3,7 +3,7 @@
 ## What?
 This is a minimal component library that rips off most of Vue's composition API, and uses `lit-html` for rendering, `immer` for immutable state.
 
-You get a setup function that gets called _once_ per component instance, so you don't have to worry about crap like the Rule of Hooks or memoizing everything.
+You get a setup function that gets called _once_ per component instance, so you don't have to worry about crap like the Rules of Hooks or memoizing everything.
 
 You set up `ref`s to state, `derive` effects and calculated dependent `refs` from them, and then get reactive rendering by means of plain old functions. Without the use of proxies making `console.log` debugging horrible!
 
@@ -17,9 +17,14 @@ I was writing a little game in vanilla JS, and after getting tired of ersatz ren
 ## How?
 `$ npm i @stevvvns/incomponent`
 
-Configure your build to keep function names. In esbuild this is `keepNames: true` (`--keep-names` CLI), vite `esbuild.keepNames: true`, webpack `optimization.minimizer: [new TerserPlugin({ keep_fnames: true })]`
+### Build configuration 
+Since function name become component names, you need to preserve them.
 
-Consider a bare-bones component:
+In esbuild this is `keepNames: true` (`--keep-names` CLI), vite `esbuild.keepNames: true`, webpack `optimization.minimizer: [new TerserPlugin({ keep_fnames: true })]`
+
+### Example
+
+This is what using the library generally looks like. API details below.
 
 ```javascript
 import { comp, html, ref, derive } from '@stevvvns/incomponent';
@@ -54,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
   `;
 });
 ```
-This does about what you'd expect, gives you a button you can click to see two numbers go up. [`example.html`](./example.html) has a much more involved version of the same concept demonstrating more of the API.
+This does about what you'd expect, giving you a button you can click to see two numbers go up. [`example.html`](./example.html) has a much more involved version of the same concept demonstrating more of the API.
 
 ### Concepts
 
@@ -81,11 +86,12 @@ This does about what you'd expect, gives you a button you can click to see two n
 	 * Any `ref`s that you read the `.value` of the first time the callback is invoked are tracked as dependencies automatically
 	 * If there are additional `ref`s you evaluate only conditionally, you can include them in the optional second argument to track them as well.
  * If you call the cleanup parameter with a callback, it will be invoked before the derive is recalculated and after the component is unmounted.
- * Derives cannot be `async`, but you can resolve async functions inside and set refs from the result
- * Derives cannot contain other derives, they should all be at the top level of your setup function.
+ * **Derives cannot be `async`**, but you can resolve async functions inside and set refs from the result.
+ * **Derives cannot contain other derives**, they should all be at the top level of your setup function.
 
 #### `comp(function SetupFunction() {})`
- * This is how you make a web component. It gets named by changing the function name to dash case, so don't use an arrow. This one becomes `<inc-setup-function>`
+ * This is how you make a web component.
+ * Component names are `<inc-${dashCased(setupFunction.name)}`, so your function can't be anonymous, an arrow, or mangled/removed by your build system.
  * The function provided here is called once during the instantiation of each instance of your component.
 	 * Your general goal here is to set up (hence "setup function") and return the mechanics of your component:
 		 * `ref`s for state and props
@@ -93,13 +99,13 @@ This does about what you'd expect, gives you a button you can click to see two n
 		 * `derive`s for calculations that would be awkward in the template
 		 * Regular old `function`s for state mutations
             * Functions are bound so that `this` is the component instance
- * Setup functions cannot be async
+ * **Setup functions cannot be async**
  * The return value of `comp`, which we'll call `builder`, is a collection of functions that can be called in any order (or not at all) to set the behavior of your component based on the setup:
 
 #### ``builder.template(el => html`..`)``
  * HTML or SVG representation of your component's state
  * `el` is your web component instance, which has all the stuff you would expect on a native web component. Plus, anything you return from your setup function is bound as a property.
-	 * `refs` are unwrapped during evaluation of the template. For example:
+	 * **`refs` are auto-unwrapped during evaluation of the template**. For example:
 ```javascript
 	// auto-unwrapped
 	html`<p>hello, ${el.name}</p>`
