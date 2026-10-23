@@ -10,6 +10,32 @@ const cx = classMap;
 const sx = styleMap;
 export { html, svg, cx, sx, unsafeHTML, unsafeSVG, repeat };
 
+let asyncStore;
+
+export function initStores(ast = false) {
+  asyncStore = ast;
+}
+
+export function store(fn) {
+  return function use() {
+    if (!asyncStore) {
+      if (!fn._globalInst) {
+        fn._globaInst = fn();
+      }
+      return fn._globalInst;
+    }
+    const st = asyncStore.getStore();
+    if (!('_cache' in st)) {
+      st._storeCache = new Map();
+    }
+    if (!st._storeCache.has(fn)) {
+      st._storeCache.set(fn, fn());
+    }
+
+    return st._storeCache.get(fn);
+  }
+}
+
 class Ref {
   constructor(value) {
     this._value = value;

@@ -53,10 +53,7 @@ comp(function Score() {
 
 document.addEventListener('DOMContentLoaded', () => {
   // yay native components, they're just HTML tags you can drop in anywhere
-  document.body.innerHTML = `
-    <inc-score></inc-score>
-    <inc-controls></inc-controls>
-  `;
+  document.body.innerHTML = '<inc-score></inc-score>';
 });
 ```
 This does about what you'd expect, giving you a button you can click to see two numbers go up. [`example.html`](./example.html) has a much more involved version of the same concept demonstrating more of the API.
